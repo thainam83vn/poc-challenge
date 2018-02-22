@@ -3,6 +3,7 @@ import './AddressGenerator.css';
 import pdfService from './../../services/pdf.service';
 import dialogService from './../../services/dialog.service';
 import FormField from './../Controls/FormField';
+import Button from './../Controls/Button';
 
 export class AddressGenerator extends React.Component {
     state = {
@@ -102,11 +103,13 @@ export class AddressGenerator extends React.Component {
     render() {
         return (
             <div className="address-generator">
-    
+                <h1>Smart Doc</h1>
                 <FormField value={this.state.address} placeholder="Enter address" onChange={(value)=>this.setState({address:value})} />
                 <div className="btn-group" role="group" aria-label="Button group with nested dropdown">
-                    <button type="button" className="btn btn-secondary" onClick={() => this.generateAddress({ templateName: "template1" })}>Generate smart_form_1.pdf</button>
-                    <button type="button" className="btn btn-secondary" onClick={() => this.generateAddress({ templateName: "template2" })}>Generate smart_form_2.pdf</button>
+                    <Button onClick={() => this.generateAddress({ templateName: "template1" })} title="Generate smart_form_1.pdf" />
+                    <Button onClick={() => this.generateAddress({ templateName: "template2" })} title="Generate smart_form_2.pdf" />
+                    {/* <button type="button" className="btn btn-secondary" onClick={() => this.generateAddress({ templateName: "template1" })}>Generate smart_form_1.pdf</button>
+                    <button type="button" className="btn btn-secondary" onClick={() => this.generateAddress({ templateName: "template2" })}>Generate smart_form_2.pdf</button> */}
                 </div>
            
             </div>

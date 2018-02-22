@@ -3,73 +3,117 @@ import './SmarterDoc.css';
 import pdfService from './../../services/pdf.service';
 import dialogService from './../../services/dialog.service';
 import FormField from './../Controls/FormField';
+import Button from './../Controls/Button';
+import UploadFile from './../Controls/UploadFile';
 
-export class AddressGenerator extends React.Component {
+export class SmarterDoc extends React.Component {
     state = {
-        address: '',
-        outputUrl: null,
-        binary: null
+        templates: [],
+        selectedTemplate: null,
+        form: null
     };
 
-    generateAddress({ templateName }) {
-        console.log("gen:", templateName, this.state.address);
-        if (this.state.address !== '') {
-            pdfService.genTemplateAddress({ templateName: templateName, address: this.state.address }).then(res => {
-                this.setState({ outputUrl: res.outputUrl, binary: res.binary })
+    componentDidMount() {
+        this.getAllTemplates();
+    }
+
+    getAllTemplates(){
+        pdfService.getUploadedTemplates().then(res => {
+            this.setState({ templates: res.result });
+        }).catch(err => {
+            dialogService.error(err);
+        });
+    }
+
+    setTemplate(t) {
+        let form = {};
+        t.fields.map(field => {
+            form[field.name] = '';
+        });
+        this.setState({ selectedTemplate: t, form: form });
+    }
+
+    setFieldValue(field, value) {
+        let form = this.state.form;
+        form[field.name] = value;
+        this.setState({ form: form });
+    }
+
+    generatePdf() {
+        if (this.state.selectedTemplate !== '') {
+            let template = this.state.selectedTemplate;
+            pdfService.genPdf({ templateFile: template.fileName, fields: this.state.form }).then(res => {
+                this.setState({ outputUrl: res.outputUrl, binary: res.binary });
+                let url = `http://localhost:5000/api/output/${res.outputUrl}`;
+                window.open(url, '_blank');
             }).catch(err => {
-                dialogService.err(err.message);
+                console.log(err);
+                dialogService.error(err);
             });
         } else {
             dialogService.alert('Invalid address', 'Please input valid address');
         }
     }
 
-    downloadOutput(e) {
-        e.preventDefault();
-        let url = `/api/output/${this.state.outputUrl}`;
-        fetch(url).then(response => {
-            const reader = response.body.getReader();
-            const stream = new ReadableStream({
-                start(controller) {
-                    // The following function handles each data chunk
-                    function push() {
-                        // "done" is a Boolean and value a "Uint8Array"
-                        return reader.read().then(({ done, value }) => {
-                            // Is there no more data to read?
-                            if (done) {
-                                // Tell the browser that we have finished sending data
-                                controller.close();
-                                return;
-                            }
+    renderItems() {
+        let selected = this.state.selectedTemplate;
+        let items = this.state.templates.map(t =>
+            <div key={t.fileName} className={selected && selected.fileName === t.fileName ? 'active' : ''} onClick={() => this.setTemplate(t)}>{t.fileName}</div>);
+        return (
+            <div className="templates">
+                <div className='header'>Templates List</div>
+                
+                {items}
+            </div>
+        );
+    }
 
-                            // Get the data and send it to the browser via the controller
-                            controller.enqueue(value);
-                        }).then(push);
-                    };
-
-                    push();
-                }
-            });
-
-            return new Response(stream, { headers: { "Content-Type": "application/pdf" } });
+    uploadedTemplate(){
+        dialogService.alert('Uploaded template', 'Uploaded template sucessful').then(res=>{
+            this.getAllTemplates();
         });
-       
+    }
+
+    renderUpload() {
+        return (
+            <div className="upload" >
+                <div className='header'>Upload Template</div>
+                <div>
+                    <UploadFile onUploaded={()=>this.uploadedTemplate()} />
+                </div>
+            </div>
+        );
+    }
+
+    renderForm() {
+        if (this.state.form) {
+            let selected = this.state.selectedTemplate;
+            let fields = selected.fields.map(field =>
+                <FormField key={field.name} value={this.state.form[field.name]} placeholder={field.name} onChange={(value) => this.setFieldValue(field, value)} />
+            );
+            return (
+                <div className="form">
+                    <h1>{selected && selected.fileName}</h1>
+                    {fields}
+                    <Button onClick={() => this.generatePdf()} title="Generate PDF" />
+                </div>
+            )
+        }
+        return <div className="form"></div>;
     }
 
     render() {
+        let templates = this.renderItems();
+        let upload = this.renderUpload();
+        let form = this.renderForm();
         return (
-            <div className="address-generator">
-                <FormField value={this.state.address} placeholder="Enter address" onChange={(value)=>this.setState({address:value})} />
-                <div className="btn-group" role="group" aria-label="Button group with nested dropdown">
-                    <button type="button" className="btn btn-secondary" onClick={() => this.generateAddress({ templateName: "template1" })}>Generate smart_form_1.pdf</button>
-                    <button type="button" className="btn btn-secondary" onClick={() => this.generateAddress({ templateName: "template2" })}>Generate smart_form_2.pdf</button>
+            <div className="smarter-doc">
+                <div className="right-side">
+                    {templates}
+                    {upload}
                 </div>
-                {this.state.binary &&
-                    <div>
-                        <a href='#' onClick={(e) => this.downloadOutput(e)} target='_blank'>Click here to download PDF output file</a>
-                    </div>
-                }
+                {form}
             </div>
-        );
+        )
     }
 }

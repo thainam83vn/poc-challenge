@@ -1,6 +1,45 @@
+.header{
+    font-weight: bolder;
+}
+
+
 .smarter-doc{
-    width: 60%;
+    width: 80%;
     padding: 10px;
     text-align: left;
     margin: auto;
+    display: flex;
+    justify-content: space-around;
+}
+
+.smarter-doc > .right-side{
+    min-width: 300px;
+}
+
+.smarter-doc > .right-side > .templates{
+    width: 96%;
+    border: 1px solid #6c757d;
+    padding: 10px;
+}
+
+
+.smarter-doc > .right-side > .templates > div{
+    cursor: pointer;
+}
+
+.smarter-doc > .right-side > .upload{
+    width: 96%;
+    border: 1px solid #6c757d;
+    padding: 10px;
+}
+
+.smarter-doc > .right-side > .templates > div.active{
+    color:blue;
+}
+
+.smarter-doc > .form{
+    /* width: calc(100% - 300px); */
+    min-width: 500px;
+    border: 1px solid #6c757d;
+    padding: 10px;
 }

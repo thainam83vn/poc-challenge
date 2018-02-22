@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 const pdfAddressCtrl = require('./controllers/pdf.controller');
 
@@ -12,6 +13,31 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.get('/api', (req, res) => {
   res.send({ express: 'API is working' });
+});
+
+const storage = multer.diskStorage({
+  destination: './upload-templates',
+  filename(req, file, cb) {
+    cb(null, `${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
+app.post('/api/upload', upload.single('file'), function(req,res){
+	console.log('upload:', req.body); //form fields
+	console.log(req.file); //form files
+	/* example output:
+            { fieldname: 'upl',
+              originalname: 'grumpy.png',
+              encoding: '7bit',
+              mimetype: 'image/png',
+              destination: './uploads/',
+              filename: '436ec561793aa4dc475a88e84776b1b9',
+              path: 'uploads/436ec561793aa4dc475a88e84776b1b9',
+              size: 277056 }
+	 */
+	res.status(204).end();
 });
 
 app.get('/api/output/:fileName', (req, res) => {
