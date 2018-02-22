@@ -25,8 +25,6 @@ class App extends Component {
               <Route path="/smarter" component={SmarterDoc} />
             </Switch>
         </div>
-        <div className='error'>
-        </div>
       </div>
     );
   }
