@@ -9,8 +9,6 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-// app.use(express.static('public'));
-
 app.get('/api', (req, res) => {
   res.send({ express: 'API is working' });
 });
@@ -25,18 +23,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.post('/api/upload', upload.single('file'), function(req,res){
-	console.log('upload:', req.body); //form fields
-	console.log(req.file); //form files
-	/* example output:
-            { fieldname: 'upl',
-              originalname: 'grumpy.png',
-              encoding: '7bit',
-              mimetype: 'image/png',
-              destination: './uploads/',
-              filename: '436ec561793aa4dc475a88e84776b1b9',
-              path: 'uploads/436ec561793aa4dc475a88e84776b1b9',
-              size: 277056 }
-	 */
 	res.status(204).end();
 });
 

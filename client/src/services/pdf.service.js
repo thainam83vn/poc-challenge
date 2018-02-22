@@ -35,6 +35,15 @@ class PdfService {
         }).then(res => res.json());
     }
 
+    download({url}){
+        fetch(url).then(function (response) {
+            return response.blob();
+        }).then(function (myBlob) {
+            var objectURL = URL.createObjectURL(myBlob);
+            window.open(objectURL, '_blank');
+        });
+    }
+
 }
 
 export default new PdfService();

@@ -8,20 +8,6 @@ class UploadFile extends React.Component {
         let data = new FormData();
         data.append('file', file);
         data.append('name', name);
-
-        // fetch(`/api/upload`,{
-        //     method: 'POST',
-        //     headers: {
-        //         'user-agent': 'Mozilla/4.0 MDN Example',
-        //         'content-type': 'multipart/form-data'
-        //     },
-        //     body: data,            
-        // }).then(res=>{
-        //     console.log(res);
-        // }).catch(err=>{
-        //     console.log(err);            
-        // })
-
         axios.post('/api/upload', data)
             .then(response => {
                 console.log(response);

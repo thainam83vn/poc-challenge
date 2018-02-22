@@ -18,7 +18,7 @@ export class SmarterDoc extends React.Component {
     }
 
     getAllTemplates(){
-        pdfService.getUploadedTemplates().then(res => {
+        return pdfService.getUploadedTemplates().then(res => {
             this.setState({ templates: res.result });
         }).catch(err => {
             dialogService.error(err);
@@ -44,8 +44,8 @@ export class SmarterDoc extends React.Component {
             let template = this.state.selectedTemplate;
             pdfService.genPdf({ templateFile: template.fileName, fields: this.state.form }).then(res => {
                 this.setState({ outputUrl: res.outputUrl, binary: res.binary });
-                let url = `http://localhost:5000/api/output/${res.outputUrl}`;
-                window.open(url, '_blank');
+                let url = `/api/output/${res.outputUrl}`;
+                pdfService.download({url:url});
             }).catch(err => {
                 console.log(err);
                 dialogService.error(err);
@@ -68,9 +68,13 @@ export class SmarterDoc extends React.Component {
         );
     }
 
-    uploadedTemplate(){
+    uploadedTemplate({message, file}){
         dialogService.alert('Uploaded template', 'Uploaded template sucessful').then(res=>{
-            this.getAllTemplates();
+            this.getAllTemplates().then(res=>{
+                let selected = this.state.templates.filter(t=>t.fileName == file);
+                if (selected.length > 0)
+                    this.setState({selectedTemplate: selected[0]});
+            });
         });
     }
 
@@ -79,7 +83,7 @@ export class SmarterDoc extends React.Component {
             <div className="upload" >
                 <div className='header'>Upload Template</div>
                 <div>
-                    <UploadFile onUploaded={()=>this.uploadedTemplate()} />
+                    <UploadFile onUploaded={(res)=>this.uploadedTemplate(res)} />
                 </div>
             </div>
         );
