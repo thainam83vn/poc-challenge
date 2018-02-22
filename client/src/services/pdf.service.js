@@ -1,6 +1,6 @@
 const SERVER_URL = "/api"
 class PdfService {
-    genTemplate({ templateName, address }) {
+    genTemplateAddress({ templateName, address }) {
         let url = `${SERVER_URL}/pdf/${templateName}`;
         return fetch(url, {
             body: JSON.stringify({ address: address }),
@@ -11,6 +11,8 @@ class PdfService {
             },
         }).then(res => res.json());
     }
+
+   
 }
 
 export default new PdfService();

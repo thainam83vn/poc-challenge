@@ -28,7 +28,9 @@ service.generate = ({templateFile, data, outputFile})=>{
                 if(err) {
                     reject(err);
                 }
-                resolve(outputPath);
+                let outputUrl = `${outputFile}`;
+                
+                resolve({outputUrl:outputUrl, binary: result});
             }); 
         }, function(err) {
             reject(err);

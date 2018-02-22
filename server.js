@@ -8,10 +8,15 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 app.get('/api', (req, res) => {
   res.send({ express: 'API is working' });
+});
+
+app.get('/api/output/:fileName', (req, res) => {
+  let fileName = req.params.fileName;
+  res.download(`${__dirname}/public/output/${fileName}`);
 });
 
 app.use('/api/pdf', pdfAddressCtrl);

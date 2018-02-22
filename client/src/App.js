@@ -7,10 +7,10 @@ import { AddressGenerator } from './components/AddressGenerator/AddressGenerator
 
 class App extends Component {
   componentDidMount() {
-    pdfService.genTemplate({templateName: "template2", address: "hellooo new address"})
-      .then(res=>{
-        console.log("result", res);
-      });
+    // pdfService.genTemplate({templateName: "template2", address: "hellooo new address"})
+    //   .then(res=>{
+    //     console.log("result", res);
+    //   });
   }
   render() {
     return (
@@ -22,6 +22,8 @@ class App extends Component {
             <Switch>
               <Route path="/" component={AddressGenerator} />
             </Switch>
+        </div>
+        <div className='error'>
         </div>
       </div>
     );
