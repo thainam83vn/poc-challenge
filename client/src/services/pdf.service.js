@@ -9,7 +9,7 @@ class PdfService {
                 'user-agent': 'Mozilla/4.0 MDN Example',
                 'content-type': 'application/json'
             },
-        }).then(res => res.json);
+        }).then(res => res.json());
     }
 }
 
