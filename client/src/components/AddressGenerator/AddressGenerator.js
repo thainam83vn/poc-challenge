@@ -1,11 +1,15 @@
 import React from 'react';
 import './AddressGenerator.css';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import pdfService from './../../services/pdf.service';
 import dialogService from './../../services/dialog.service';
 import FormField from './../Controls/FormField';
 import Button from './../Controls/Button';
+import { setLoading } from './../../actions/app-actions';
 
-export class AddressGenerator extends React.Component {
+
+class AddressGenerator extends React.Component {
     state = {
         address: '',
         outputUrl: null,
@@ -23,17 +27,21 @@ export class AddressGenerator extends React.Component {
 
     generateAddress({ templateName }) {
         console.log("gen:", templateName, this.state.address);
+        this.props.setLoading(true);
         if (this.state.address !== '') {
             pdfService.genTemplateAddress({ templateName: templateName, address: this.state.address }).then(res => {
                 this.setState({ outputUrl: res.outputUrl });
                 // this.downloadOutput();
                 let url = `/api/output/${this.state.outputUrl}`;
-                pdfService.download({url:url});
+                pdfService.download({ url: url });
+                this.props.setLoading(false);
             }).catch(err => {
                 console.log(err);
                 dialogService.error(err);
+                this.props.setLoading(false);                
             });
         } else {
+            this.props.setLoading(false);            
             dialogService.alert('Invalid address', 'Please input valid address');
         }
     }
@@ -51,9 +59,14 @@ export class AddressGenerator extends React.Component {
             </div>
         );
     }
-
-
-
-
-
 }
+function mapStateToProps(state){
+    return {
+        isLoading: state.app.isLoading
+    }
+  }
+  function matchDispatchToProps(dispatch){
+    return bindActionCreators({setLoading: setLoading}, dispatch);
+  }
+  
+  export default  connect(mapStateToProps, matchDispatchToProps)(AddressGenerator);

@@ -1,12 +1,17 @@
 import React from 'react';
 import './SmarterDoc.css';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+
 import pdfService from './../../services/pdf.service';
 import dialogService from './../../services/dialog.service';
 import FormField from './../Controls/FormField';
 import Button from './../Controls/Button';
 import UploadFile from './../Controls/UploadFile';
+import { setLoading } from './../../actions/app-actions';
 
-export class SmarterDoc extends React.Component {
+
+class SmarterDoc extends React.Component {
     state = {
         templates: [],
         selectedTemplate: null,
@@ -17,11 +22,14 @@ export class SmarterDoc extends React.Component {
         this.getAllTemplates();
     }
 
-    getAllTemplates(){
+    getAllTemplates() {
+        this.props.setLoading(true);
         return pdfService.getUploadedTemplates().then(res => {
             this.setState({ templates: res.result });
+            this.props.setLoading(false);
         }).catch(err => {
             dialogService.error(err);
+            this.props.setLoading(false);                       
         });
     }
 
@@ -39,19 +47,22 @@ export class SmarterDoc extends React.Component {
         this.setState({ form: form });
     }
 
-    generatePdf() {
+    generatePdf() {        
         if (this.state.selectedTemplate !== '') {
+            this.props.setLoading(true);           
             let template = this.state.selectedTemplate;
             pdfService.genPdf({ templateFile: template.fileName, fields: this.state.form }).then(res => {
                 this.setState({ outputUrl: res.outputUrl, binary: res.binary });
                 let url = `/api/output/${res.outputUrl}`;
-                pdfService.download({url:url});
+                pdfService.download({ url: url });
+                this.props.setLoading(false);           
             }).catch(err => {
                 console.log(err);
+                this.props.setLoading(false);           
                 dialogService.error(err);
             });
         } else {
-            dialogService.alert('Invalid address', 'Please input valid address');
+            dialogService.alert('Invalid template', 'Please select template first');
         }
     }
 
@@ -62,18 +73,18 @@ export class SmarterDoc extends React.Component {
         return (
             <div className="templates">
                 <div className='header'>Templates List</div>
-                
+
                 {items}
             </div>
         );
     }
 
-    uploadedTemplate({message, file}){
-        dialogService.alert('Uploaded template', 'Uploaded template sucessful').then(res=>{
-            this.getAllTemplates().then(res=>{
-                let selected = this.state.templates.filter(t=>t.fileName == file);
+    uploadedTemplate({ message, file }) {
+        dialogService.alert('Uploaded template', 'Uploaded template sucessful').then(res => {
+            this.getAllTemplates().then(res => {
+                let selected = this.state.templates.filter(t => t.fileName == file);
                 if (selected.length > 0)
-                    this.setState({selectedTemplate: selected[0]});
+                    this.setState({ selectedTemplate: selected[0] });
             });
         });
     }
@@ -83,7 +94,7 @@ export class SmarterDoc extends React.Component {
             <div className="upload" >
                 <div className='header'>Upload Template</div>
                 <div>
-                    <UploadFile onUploaded={(res)=>this.uploadedTemplate(res)} />
+                    <UploadFile onUploaded={(res) => this.uploadedTemplate(res)} />
                 </div>
             </div>
         );
@@ -121,3 +132,14 @@ export class SmarterDoc extends React.Component {
         )
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        isLoading: state.app.isLoading
+    }
+}
+function matchDispatchToProps(dispatch) {
+    return bindActionCreators({ setLoading: setLoading }, dispatch);
+}
+
+export default connect(mapStateToProps, matchDispatchToProps)(SmarterDoc);
