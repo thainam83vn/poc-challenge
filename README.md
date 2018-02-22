@@ -21,5 +21,5 @@ npm start
 Because I spent much time to solve issue of setup pdf-fill-form
 So I only applied Redux code for App component, state isLoading showing loader each time components are requesting to server.
 
-##Tade offs
-I had issue with the pdf library, because I cannot install on Windows, so I have to install VM Ubuntu environment
+## Trade offs
+I had issue with the pdf library, because it could not installed on Windows, so I have to install VM Ubuntu environment
